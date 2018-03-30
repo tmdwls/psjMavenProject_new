@@ -65,7 +65,8 @@ object Example4 {
 
     var newsum = newra + rb1 + rc1
 
-    var a = 1
+    var a44 = 1
+    var b12 = 3
   }
 
 
