@@ -8,8 +8,9 @@ object Example_DataLoding {
       config("spark.master", "local").
       getOrCreate()
 
-    //Oracle 데이터 불러오기
-      // 접속정보 설정// var staticUrl = "jdbc:oracle:thin:@192.168.110.111:1521/orcl"
+    //Oracle XE 데이터 불러오기
+      // 접속정보 설정//
+         var staticUrl = "jdbc:oracle:thin:@192.168.110.4:1522/XE"
          var staticUser = "kopo"
          var staticPw = "kopo"
          var selloutDb = "KOPO_CHANNEL_SEASONALITY_ex"

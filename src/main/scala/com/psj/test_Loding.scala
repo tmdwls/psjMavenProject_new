@@ -15,37 +15,40 @@ object test_Loding {
   var selloutDb = "kopo_region_mst"
 
   // jdbc (java database connectivity) 연결
-  val selloutDataFromOracle= spark.read.format("jdbc").
+  val subData= spark.read.format("jdbc").
     options(Map("url" -> staticUrl,"dbtable" -> selloutDb,"user" -> staticUser, "password" -> staticPw)).load
 
   // 메모리 테이블 생성
-  selloutDataFromOracle.createOrReplaceTempView("selloutTable2")
-  selloutDataFromOracle.show()
+  subData.createOrReplaceTempView("subTable")
+  subData.show()
 
-// Join
-  spark.sql("select a.regionid, a.product, a.yearweek, a.qty, b.regionname " +
-    "from selloutTable a " +
-    "inner join selloutTable2 b " + //"left join selloutTable2 b "
-    "on a.regionid = b.regionid")
+// Join         "inner join mainTable a 작은 테이블이 우선 큰테이블이 앞"
+  spark.sql("select a.REGIONID, a.PRODUCT, a.YEARWEEK, a.QTY, b.REGIONNAME " +
+    "from mainTable a " +
+    "left join subTable b " + //
+    "on a.REGINOID = b.REGINOID")
+
+
 //join
-  var leftJoinData = spark.sql("select a.regionid, a.product, a.yearweek, a.qty, b.regionname " +
-    "from selloutTable a left outer join selloutTable2 b " +
-    "on a.regionid = b.regionid")
-
+  var leftJoinData = spark.sql("select A.REGIONID, A.PRODUCT, A.YEARWEEK, A.QTY, B.REGIONNAME " +
+    "from mainTable A left outer join subTable B " +
+    "on A.REGIONID = B.REGIONID")
+  //"select a.regionid, a.product, a.yearweek, a.qty, b.regionname "
+  //left 자리만 inner 역시 작은테이블이 앞쪽
 
   //테이터 저장
-  var myUrl = "jdbc:oracle:thin:@192.168.110.111:1521/orcl"
+  var myUrl = "jdbc:oracle:thin:@192.168.110.4:1522/XE"
 
   // 데이터 저장
   val prop = new java.util.Properties
   prop.setProperty("driver", "oracle.jdbc.OracleDriver")
-  prop.setProperty("user", "kopo")
-  prop.setProperty("password", "kopo")
-  val table = "test111"
+  prop.setProperty("user", "tmdwls99")
+  prop.setProperty("password", "tmdwls99")
+  val table = "test123"
   //append
   leftJoinData.write.mode("overwrite").jdbc(myUrl, table, prop)
 
-  
+
 
   // 파일저장
   leftJoinData.
@@ -54,5 +57,13 @@ object test_Loding {
     mode("overwrite"). // 저장모드 append/overwrite
     option("header", "true"). // 헤더 유/무
     save("C:/spark/bin/data/leftJoinData.csv") // 저장파일명
+
+
+  ///////////// Oracle Express Usage ////////////////
+  //alter system set processes=500 scope=spfile
+  //show parameter processes
+  //shutdown immediate
+  //startup
+
 
 }
