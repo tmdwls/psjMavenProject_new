@@ -45,10 +45,11 @@ object test_Loding {
   //append
   leftJoinData.write.mode("overwrite").jdbc(myUrl, table, prop)
 
+  
 
   // 파일저장
   leftJoinData.
-    //coalesce(1). // 파일개수
+    coalesce(1). // 파일개수
     write.format("csv").  // 저장포맷
     mode("overwrite"). // 저장모드 append/overwrite
     option("header", "true"). // 헤더 유/무
