@@ -39,7 +39,7 @@ object Example_DataLoding {
 
 //RDB(MySql) 불러오기
     // 파일설정
-        var staticUrl = "jdbc:mysql://192.168.110.112:3306/kopo“
+        var staticUrl = "jdbc:mysql://192.168.110.112:3306/kopo"
         var staticUser = "root"
         var staticPw = "P@ssw0rd"
         var selloutDb = "KOPO_PRODUCT_VOLUME"
