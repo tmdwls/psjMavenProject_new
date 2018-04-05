@@ -3,7 +3,7 @@ package com.psj
 
 import org.apache.spark.sql.SparkSession;
 
-object Example_Join {
+object DataJoin {
 
   val spark = SparkSession.builder().appName("...").
     config("spark.master", "local").
