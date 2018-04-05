@@ -16,6 +16,7 @@ object Example3 {
     var priceDataSize = priceData.size
 
     for (i <- 0 until priceDataSize) {
+      //var i = 0
       var promotionEffect = price + priceData(i)
       priceData(i) = promotionEffect
     }

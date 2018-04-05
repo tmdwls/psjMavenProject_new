@@ -37,9 +37,6 @@ object Example_DataLoding {
     // 메모리 테이블 생성
         selloutDataFromPg.createOrReplaceTempView("selloutTable")
 
-
-
-
 //RDB(MySql) 불러오기
     // 파일설정
         var staticUrl = "jdbc:mysql://192.168.110.112:3306/kopo“
