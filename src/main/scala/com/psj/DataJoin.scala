@@ -57,8 +57,9 @@ object DataJoin {
 // LEFT JOIN table3 D
 //  ON A.productgroup = D.productgroup
 
-
-//  select A.*
+//create table psj as
+//(
+// select A.*
 //  ,B.productname
 //  ,c.promotion_ratio
 //  ,d.promotion_Data
@@ -72,4 +73,5 @@ object DataJoin {
 //  AND A.productgroup = c.productgroup (+)
 //  AND A.yearweek = C.yearweek (+)
 //  AND A.productgroup = D.productgroup (+);
+  //)
 }
