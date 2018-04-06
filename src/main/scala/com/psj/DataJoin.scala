@@ -57,4 +57,19 @@ object DataJoin {
 // LEFT JOIN table3 D
 //  ON A.productgroup = D.productgroup
 
+
+//  select A.*
+//  ,B.productname
+//  ,c.promotion_ratio
+//  ,d.promotion_Data
+
+//  FROM lefttable a,
+//  righttable b,
+//  table2 c,
+//  table3 d
+//    where 1=1
+//  And A.productgroup = B.productid (+)
+//  AND A.productgroup = c.productgroup (+)
+//  AND A.yearweek = C.yearweek (+)
+//  AND A.productgroup = D.productgroup (+);
 }
