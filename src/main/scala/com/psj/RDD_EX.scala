@@ -79,6 +79,15 @@ object RDD_EX {
     checkValid
   })
 
+  var rwaExRdd = rawRdd.filter(x=>{
+    var checkValid = false
+    if((x.getString(REGIONIDNO) == "A60") &&
+      (x.getString(PRODUCTNO) == "PRODUCT34") &&
+      (x.getString(YEARWEEKNO) == "201402")){
+      checkValid = true
+    }
+    checkValid
+  })
 
 
 
