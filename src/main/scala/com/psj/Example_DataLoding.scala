@@ -10,18 +10,24 @@ object Example_DataLoding {
 
     //Oracle XE 데이터 불러오기
       // 접속정보 설정//
-         var staticUrl = "jdbc:oracle:thin:@192.168.110.4:1522/XE"
+         var staticUrl = "jdbc:oracle:thin:@192.168.110.111:1521/orcl"
          var staticUser = "kopo"
          var staticPw = "kopo"
-         var selloutDb = "KOPO_CHANNEL_SEASONALITY_ex"
+         var selloutDb = "kopo_channel_seasonality_new"
+         var selloutDb1 ="kopo_product_master"
 
       // jdbc (java database connectivity) 연결
          val selloutDataFromOracle= spark.read.format("jdbc").
-         options(Map("url" -> staticUrl,"dbtable" -> selloutDb,"user" -> staticUser, "password" -> staticPw)).load
+      options(Map("url" -> staticUrl,"dbtable" -> selloutDb,"user" -> staticUser, "password" -> staticPw)).load
+          val selloutDataFromOracle1= spark.read.format("jdbc").
+      options(Map("url" -> staticUrl,"dbtable" -> selloutDb1,"user" -> staticUser, "password" -> staticPw)).load
 
       // 메모리 테이블 생성
          selloutDataFromOracle.createOrReplaceTempView("selloutTable")
          selloutDataFromOracle.show(1)
+
+        selloutDataFromOracle1.createOrReplaceTempView("selloutTable1")
+        selloutDataFromOracle1.show(1)
 
 
  //RDB(Postgres/greenplumDB) 불러오기
@@ -40,7 +46,7 @@ object Example_DataLoding {
 
 //RDB(MySql) 불러오기
     // 파일설정
-        var staticUrl = "jdbc:mysql://192.168.110.112:3306/kopo"
+        var staticUrl = "jdbc:mysql://192.168.110.112:111/kopo"
         var staticUser = "root"
         var staticPw = "P@ssw0rd"
         var selloutDb = "KOPO_PRODUCT_VOLUME"
