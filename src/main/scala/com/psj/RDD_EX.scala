@@ -1,8 +1,8 @@
 package com.psj
 
 import com.psj.Concat.test_Loding.{middleResult, spark}
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.types.{StringType, DoubleType, StructField, StructType}//스파크에서도 실행
+import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}//스파크에서도 실행
 
 
 object RDD_EX {
@@ -16,49 +16,49 @@ object RDD_EX {
   var staticUrl = "jdbc:oracle:thin:@192.168.110.111:1521/orcl"
   var staticUser = "kopo"
   var staticPw = "kopo"
-  var selloutDb = "kopo_channel_seasonality_new"
-  var selloutDb1 ="kopo_product_master"
+  var MainData = "kopo_channel_seasonality_new"
+  var SubData ="kopo_product_master"
 
   // jdbc (java database connectivity) 연결
-  val selloutDataFromOracle= spark.read.format("jdbc").
-    options(Map("url" -> staticUrl,"dbtable" -> selloutDb,"user" -> staticUser, "password" -> staticPw)).load
-  val selloutDataFromOracle1= spark.read.format("jdbc").
-    options(Map("url" -> staticUrl,"dbtable" -> selloutDb1,"user" -> staticUser, "password" -> staticPw)).load
+  val MainDataFrom= spark.read.format("jdbc").
+    options(Map("url" -> staticUrl,"dbtable" -> MainData,"user" -> staticUser, "password" -> staticPw)).load
+  val SubDataFrom= spark.read.format("jdbc").
+    options(Map("url" -> staticUrl,"dbtable" -> SubData,"user" -> staticUser, "password" -> staticPw)).load
 
-  // 메모리 테이블 생성
-  selloutDataFromOracle.createOrReplaceTempView("selloutTable")
-  selloutDataFromOracle.show(1)
+  MainDataFrom.createOrReplaceTempView("MainTable")
+  MainDataFrom.show(1)
 
-  selloutDataFromOracle1.createOrReplaceTempView("selloutTable1")
-  selloutDataFromOracle1.show(1)
+  SubDataFrom.createOrReplaceTempView("SubTable")
+  SubDataFrom.show(1)
 
-  var mainData = selloutDataFromOracle.rdd
-  var subData = selloutDataFromOracle1.rdd
+  var mainData = MainDataFrom.rdd
+  var subData = SubDataFrom.rdd
 
-////조인
-  var middleResult = spark.sql("select " +
-   // "concat(A.REGIONID,'_',A.PRODUCT) as keycol, " +
+  ////조인
+  var JoinResult = spark.sql("select " +
+    "concat(A.REGIONID,'_',A.PRODUCT) as keycol, " +
     "A.REGIONID, " +
     "A.PRODUCT, " +
     "A.YEARWEEK, " +
     "cast(A.QTY as double) as QTY, " +
     "B.PRODUCTNAME " +
-    "from selloutTable a " +
-    "left join selloutTable1 b "+
+    "from MainTable a " +
+    "left join SubTable b "+
     "on A.PRODUCT = B.PRODUCTID")
 
   //인텍스 부여
-  var rawDataColumns = middleResult.columns
+  var rawDataColumns = JoinResult.columns
 
-  //var keycolNO = rawDataColumns.indexOf("keycol")
+  var keycolNO = rawDataColumns.indexOf("keycol")
   var REGIONIDNO = rawDataColumns.indexOf("REGIONID")
   var PRODUCTNO = rawDataColumns.indexOf("PRODUCT")
   var YEARWEEKNO = rawDataColumns.indexOf("YEARWEEK")
   var QTYNO = rawDataColumns.indexOf("QTY")
   var PRODUCTNAMENO = rawDataColumns.indexOf("PRODUCTNAME")
 
-  var rawRdd = middleResult.rdd
+  var rawRdd = JoinResult.rdd
 
+  // 메모리 테이블 생성
   //////////////////////////////////////////////////////////////////////
   // RDD-정제연산
 
@@ -108,7 +108,8 @@ object RDD_EX {
 
   // 데이터 확인
   //var {resultRdd}.collect.foreach(println)
-  resultRdd.collect.foreach(println)
+  mapRdd.collect.foreach(println)
+  mapRdd.take(3)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -116,7 +117,7 @@ object RDD_EX {
   //var {DataFrame 변수명} = spark.createDataframe( {RDD명},
  //   StructType(Seq( StructField( “컬럼명#1”, 데이터타입#1),
  // StructField( “컬럼명#2”, 데이터타입#2))
-  resultRdd
+
 
 var productDataFrame = spark.createDataFrame(resultRdd,
   StructType(
@@ -127,8 +128,43 @@ var productDataFrame = spark.createDataFrame(resultRdd,
       StructField("YEARWEEK", StringType),
       StructField("VOLUME", DoubleType),
       StructField("PRODUCT_NAME", StringType))))
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //RDD-가공연산
+  // key, account, product, yearweek, qty, productname
+  var mapRdd = filterexRdd.map(x=>{
+    var qty = x.getDouble(QTYNO).toDouble
+    var maxValue = 700000
+    if(qty > maxValue){qty = maxValue}
+    Row( x.getString(keycolNO),
+      x.getString(YEARWEEKNO),
+      x.getString(QTYNO))
+  })
 
 
+  //디버깅
+
+   //filterexRdd = [A02_PRODUCT6,A02,PRODUCT6,201403,0.0,LED_TV]
+  //var mapRdd = filterexRdd
+  //var x = mapRdd.first
+
+  //처리 로직 MAXVALUE 이상인건은 MAXVALUE로 치환한다
+  var MAXVALUE = 700000
+  var mapRdd1 = filterexRdd.map(x=>{
+    //디버깅 코드 : var x = mapRdd.filter(x=>{x.getDouble(QTYNO) > 700000 }).first
+    //로직 구현 예정
+    var org_qty = x.getDouble(QTYNO)
+    var new_qty = org_qty
+    if(new_qty > MAXVALUE){
+      new_qty = MAXVALUE
+    }
+    //출력 row 정보 키정보, 지역정보, 상품정보, 연주차정보, 거래량 정보, 거재량 정보_NEW 상품이름 정보)
+    Row(x.getString(keycolNO),
+     x.getString(YEARWEEKNO),
+     org_qty,
+     new_qty
+    )
+   })
 
 
 
