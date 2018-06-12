@@ -12,7 +12,7 @@ object Concat {
 
     //Oracle XE 데이터 불러오기
     // 접속정보 설정//
-    var staticUrl = "jdbc:oracle:thin:@192.168.110.111:1521/orcl"
+    var staticUrl = "jdbc:oracle:thin:@192.168.110.112:1521/orcl"
     var staticUser = "kopo"
     var staticPw = "kopo"
     var selloutDb = "kopo_channel_seasonality_new"

@@ -1,6 +1,7 @@
 package com.psj
 
 import com.psj.Concat.test_Loding.{middleResult, spark}
+import com.psj.RDD_EX.{productArray, productSet}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}//스파크에서도 실행
 
@@ -40,7 +41,7 @@ object RDD_EX {
     "A.REGIONID, " +
     "A.PRODUCT, " +
     "A.YEARWEEK, " +
-    "cast(A.QTY as double) as QTY, " +
+    "A.QTY *1.2 as NEW_QTY, " +
     "B.PRODUCTNAME " +
     "from MainTable a " +
     "left join SubTable b "+
@@ -64,6 +65,24 @@ object RDD_EX {
 
   // 데이터형 변환 [데이터프레임 → RDD]
   //var {RDD변수명} = {RDD변수명}.filter(x=>{ 필터조건식})
+  var RDDRDD = rawRdd.filter(x=>{
+    var checkValid = false
+    var WEEK = x.getString(YEARWEEKNO).substring(4,6).toInt
+    var YEAR = x.getString(YEARWEEKNO).substring(0,4).toInt
+    if( YEAR >= 2016 &&
+          WEEK != 53
+    )
+    {checkValid = true}
+    checkValid
+  })
+
+  var RDDRDD2 = RDDRDD.filter(x=>{
+    var checkValid = false
+    if ((x.getString(PRODUCTNO)) == "PRODUCT1" ||
+      (x.getString(PRODUCTNO)) == "PRODUCT2")
+      {checkValid = true}
+    checkValid
+  })
 
   // 데이터 확인
   //var {RDD변수명}.collect.foreach(println)
@@ -80,11 +99,11 @@ object RDD_EX {
   })
 
   var rwaExRdd = rawRdd.filter(x=>{
-    var checkValid = true
+    var checkValid = false
     if((x.getString(REGIONIDNO) == "A60") &&
-      (x.getString(PRODUCTNO) == "PRODUCT34") &&
+      (x.getString(PRODUCTNO) == "PRODUCT4") &&
       (x.getString(YEARWEEKNO) == "201402")){
-      checkValid = false
+      checkValid = true
     }
     checkValid
   })
@@ -165,6 +184,15 @@ var productDataFrame = spark.createDataFrame(resultRdd,
      new_qty
     )
    })
+
+
+
+
+
+
+
+
+
 
 
 
